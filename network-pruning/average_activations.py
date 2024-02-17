@@ -41,3 +41,21 @@ for i, activation in enumerate(average_activations):
     print(f"Layer {i + 1}:")
     print(activation)
     print()
+
+
+# Function to compute the average activation value for each layer
+def compute_activation_stds():
+    batch_activations = compute_activations(test_images)
+    activation_stds = [np.std(activations, axis=0) for activations in batch_activations]
+
+    return activation_stds
+
+
+# Compute the activation stds
+activation_stds = compute_activation_stds()
+
+# Print the activation std values for each layer
+for i, activation in enumerate(activation_stds):
+    print(f"Layer {i + 1}:")
+    print(activation)
+    print()
