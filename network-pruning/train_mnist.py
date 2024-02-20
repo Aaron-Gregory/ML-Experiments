@@ -11,9 +11,9 @@ train_images, test_images = train_images / 255.0, test_images / 255.0
 model = Sequential(
     [
         Flatten(input_shape=(28, 28)),
-        Dense(128, activation="relu"),
-        Dense(128, activation="relu"),
-        Dense(128, activation="relu"),
+        Dense(128, activation="sigmoid"),
+        Dense(128, activation="sigmoid"),
+        Dense(128, activation="sigmoid"),
         Dense(10, activation="softmax"),
     ]
 )
