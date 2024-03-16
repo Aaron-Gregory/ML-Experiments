@@ -1,0 +1,2 @@
+# Ignore all files related to virtual envs
+**/*_env/**
