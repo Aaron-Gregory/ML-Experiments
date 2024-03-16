@@ -1,2 +1,3 @@
 # Ignore all files related to virtual envs
-**/*_env/**
+**/*_env
+**/__pycache__
