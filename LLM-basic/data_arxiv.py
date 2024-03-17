@@ -1,6 +1,7 @@
 import shutil
 import time
 import urllib.request
+import urllib.error
 import re
 import tarfile
 import os
@@ -8,13 +9,18 @@ import os
 WORKSPACE_DIR = "./LLM-basic/arxiv/"
 DATASET_DIR = "./LLM-basic/dataset/"
 QUERY_SIZE = 100
+STARTING_POINT = 63
 
 
 # Function to download and extract a .tar.gz file
 def download_and_extract(url):
     # Download the file
     filename = WORKSPACE_DIR + url.split("/")[-1] + ".tar.gz"
-    urllib.request.urlretrieve(url, filename)
+    try:
+        urllib.request.urlretrieve(url, filename)
+    except urllib.error.HTTPError as e:
+        print("HTTP error, skipping file: ", e)
+        return
 
     # Extract the contents
     try:
@@ -83,14 +89,14 @@ def add_to_dataset(gzip_url):
 
 if __name__ == "__main__":
     for i in range(100):
-        search_url = f"http://export.arxiv.org/api/query?search_query=all:electron&start={i * QUERY_SIZE}&max_results={QUERY_SIZE}"
+        search_url = f"http://export.arxiv.org/api/query?search_query=all:electron&start={i * QUERY_SIZE + STARTING_POINT}&max_results={QUERY_SIZE}"
         src_urls = get_src_urls(search_url)
         print("Sleeping for 4 seconds...")
         time.sleep(4)  # To stay within rate limits
 
         # URL to the .tar.gz file
         for j, url in enumerate(src_urls):
-            print(f"NOW PROCESSING URL {i * QUERY_SIZE + j}")
+            print(f"NOW PROCESSING URL {i * QUERY_SIZE + j + STARTING_POINT}")
             add_to_dataset(url)
             print("Sleeping for 1 second...")
             time.sleep(1)  # To stay within rate limits
