@@ -9,7 +9,7 @@ import os
 WORKSPACE_DIR = "./LLM-basic/arxiv/"
 DATASET_DIR = "./LLM-basic/dataset/"
 QUERY_SIZE = 100
-STARTING_POINT = 63
+STARTING_POINT = 1463
 
 
 # Function to download and extract a .tar.gz file
@@ -87,8 +87,34 @@ def add_to_dataset(gzip_url):
     shutil.rmtree(WORKSPACE_DIR)
 
 
+def load_dataset():
+    dataset = []
+    for root, dirs, files in os.walk(DATASET_DIR):
+        for file in files:
+            if file.endswith(".tex"):
+                file_path = os.path.join(root, file)
+                # Try multiple encodings
+                encodings = ["utf-8", "latin-1"]  # You can extend this list as needed
+                content = None
+                for encoding in encodings:
+                    try:
+                        with open(file_path, "r", encoding=encoding) as f:
+                            content = f.read()
+                        break  # Break out of the loop if file is successfully read
+                    except UnicodeDecodeError:
+                        pass  # Try the next encoding
+                if content is not None:
+                    dataset.append(content)
+                else:
+                    print(f"Unable to read file: {file_path}")
+    return dataset
+
+
 if __name__ == "__main__":
     for i in range(100):
+        # TOPICS:
+        # electron up to 1462
+        # economics up to 0
         search_url = f"http://export.arxiv.org/api/query?search_query=all:electron&start={i * QUERY_SIZE + STARTING_POINT}&max_results={QUERY_SIZE}"
         src_urls = get_src_urls(search_url)
         print("Sleeping for 4 seconds...")

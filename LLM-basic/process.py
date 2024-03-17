@@ -12,9 +12,9 @@ Dense = tf.keras.layers.Dense
 LSTM = tf.keras.layers.LSTM
 Dropout = tf.keras.layers.Dropout
 
-# Load your text data
-# Here I'm simply loading a relative file which contains the array of data (data.py)
-from data import text_data_arr
+from data_arxiv import load_dataset
+
+text_data_arr = load_dataset()
 
 # Tokenize the text
 tokenizer = Tokenizer(char_level=True, lower=True)
@@ -27,7 +27,7 @@ sequences = tokenizer.texts_to_sequences(text_data_arr)[0]
 input_sequences = []
 output_sequences = []
 
-sequence_length = 100
+sequence_length = 130
 for i in range(len(sequences) - sequence_length):
     input_sequences.append(sequences[i : i + sequence_length])
     output_sequences.append(sequences[i + sequence_length])
@@ -41,8 +41,8 @@ vocab_size = len(tokenizer.word_index) + 1
 model = Sequential(
     [
         Embedding(vocab_size, 32, input_shape=(sequence_length,)),
-        LSTM(128, return_sequences=True, dropout=0.2, recurrent_dropout=0.2),
-        LSTM(128, dropout=0.2, recurrent_dropout=0.2),
+        LSTM(328, return_sequences=True, dropout=0.2, recurrent_dropout=0.2),
+        LSTM(328, dropout=0.2, recurrent_dropout=0.2),
         Dense(vocab_size, activation="softmax"),
     ]
 )
@@ -52,10 +52,21 @@ model.compile(
 )
 model.summary()
 
+# Add the CSVLogger callback to save training history
+csv_logger = tf.keras.callbacks.CSVLogger(
+    "training_history.csv"
+)  # Specify the file path
+
 # Train the model
 epochs = 100  # Increase the number of epochs to give the model more time to learn
 batch_size = 32
-model.fit(input_sequences, output_sequences, epochs=epochs, batch_size=batch_size)
+model.fit(
+    input_sequences,
+    output_sequences,
+    epochs=epochs,
+    batch_size=batch_size,
+    callbacks=[csv_logger],
+)
 
 
 # Evaluate the model and generate text:
