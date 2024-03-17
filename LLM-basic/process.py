@@ -77,6 +77,7 @@ def generate_text(seed_text, model, tokenizer, sequence_length, num_chars_to_gen
         token_list = tokenizer.texts_to_sequences([generated_text])
         token_list = pad_sequences(token_list, maxlen=sequence_length, padding="pre")
         predicted_probs = model.predict(token_list, verbose=0)
+        # TODO: update sampling method
         predicted_token = np.argmax(predicted_probs, axis=-1)[
             0
         ]  # Get the index of the predicted token
