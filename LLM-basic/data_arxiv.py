@@ -17,8 +17,11 @@ def download_and_extract(url):
     urllib.request.urlretrieve(url, filename)
 
     # Extract the contents
-    with tarfile.open(filename, "r:gz") as tar:
-        tar.extractall(path=WORKSPACE_DIR, filter="data")
+    try:
+        with tarfile.open(filename, "r:gz") as tar:
+            tar.extractall(path=WORKSPACE_DIR, filter="data")
+    except tarfile.ReadError as e:
+        print("Read error, skipping file: ", e)
 
     # Delete the downloaded .tar.gz file
     os.remove(filename)
@@ -80,12 +83,14 @@ def add_to_dataset(gzip_url):
 
 if __name__ == "__main__":
     for i in range(100):
-        print(f"NOW PROCESSING RESULTS STARTING AT NUMBER {i * QUERY_SIZE}")
         search_url = f"http://export.arxiv.org/api/query?search_query=all:electron&start={i * QUERY_SIZE}&max_results={QUERY_SIZE}"
         src_urls = get_src_urls(search_url)
+        print("Sleeping for 4 seconds...")
         time.sleep(4)  # To stay within rate limits
 
         # URL to the .tar.gz file
-        for url in src_urls:
+        for j, url in enumerate(src_urls):
+            print(f"NOW PROCESSING URL {i * QUERY_SIZE + j}")
             add_to_dataset(url)
+            print("Sleeping for 1 second...")
             time.sleep(1)  # To stay within rate limits
