@@ -7,7 +7,8 @@ import tarfile
 import os
 
 WORKSPACE_DIR = "./LLM-basic/arxiv/"
-DATASET_DIR = "./LLM-basic/dataset/"
+# a bit of jank to get around GuildAI trying to copy all our training data for every run
+DATASET_DIR = "/home/green/Coding/ML-Experiments/LLM-basic/dataset/"
 QUERY_SIZE = 100
 STARTING_POINT = 1663
 

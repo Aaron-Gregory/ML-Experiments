@@ -19,6 +19,8 @@ epochs = 100
 batch_size = 32
 sequence_length = 130
 seed_text = "John: How are you, Mike?"
+test_set_size = 500
+val_set_size = 500
 
 
 def prep_data():
@@ -107,11 +109,21 @@ def generate_text(seed_text, model, tokenizer, sequence_length, num_chars_to_gen
 
 if __name__ == "__main__":
     x, y, vocab_size, tokenizer = prep_data()
-    model = build_model(vocab_size)
-    train_model(model, x, y)
-    model.save("sl_model.keras")
+    s1, s2 = -(test_set_size + val_set_size), -val_set_size
+    x_train, x_test, x_val = x[:s1], x[s1:s2], x[s2:]
+    y_train, y_test, y_val = y[:s1], y[s1:s2], y[s2:]
+    print("dataset_size:", x.shape[0])
+    print("training_set_size:", x_train.shape[0])
+    print("X (train, test, val):", x_train.shape, x_test.shape, x_val.shape)
+    print("y (train, test, val):", y_train.shape, y_test.shape, y_val.shape)
+    print("Vocab size: ", vocab_size)
+    # model = build_model(vocab_size)
+    # train_model(model, x, y)
+    # model.save("sl_model.keras")
 
-    generated_text = generate_text(
-        seed_text, model, tokenizer, sequence_length, num_chars_to_generate=800
-    )
-    print(generated_text)
+    # generated_text = generate_text(
+    #     seed_text, model, tokenizer, sequence_length, num_chars_to_generate=800
+    # )
+    # print(generated_text)
+    # with open("sample_output.txt", "w") as f:
+    #     f.write(generated_text)
