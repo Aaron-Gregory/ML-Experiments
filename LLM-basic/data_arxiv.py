@@ -9,7 +9,7 @@ import os
 WORKSPACE_DIR = "./LLM-basic/arxiv/"
 DATASET_DIR = "./LLM-basic/dataset/"
 QUERY_SIZE = 100
-STARTING_POINT = 1463
+STARTING_POINT = 1663
 
 
 # Function to download and extract a .tar.gz file
@@ -113,7 +113,7 @@ def load_dataset():
 if __name__ == "__main__":
     for i in range(100):
         # TOPICS:
-        # electron up to 1462
+        # electron up to 1662
         # economics up to 0
         search_url = f"http://export.arxiv.org/api/query?search_query=all:electron&start={i * QUERY_SIZE + STARTING_POINT}&max_results={QUERY_SIZE}"
         src_urls = get_src_urls(search_url)
@@ -124,5 +124,5 @@ if __name__ == "__main__":
         for j, url in enumerate(src_urls):
             print(f"NOW PROCESSING URL {i * QUERY_SIZE + j + STARTING_POINT}")
             add_to_dataset(url)
-            print("Sleeping for 1 second...")
-            time.sleep(1)  # To stay within rate limits
+            print("Sleeping for 4 seconds...")
+            time.sleep(4)  # To stay within rate limits

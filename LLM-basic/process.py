@@ -14,59 +14,71 @@ Dropout = tf.keras.layers.Dropout
 
 from data_arxiv import load_dataset
 
-text_data_arr = load_dataset()
-
-# Tokenize the text
-tokenizer = Tokenizer(char_level=True, lower=True)
-tokenizer.fit_on_texts(text_data_arr)
-
-# Convert text to sequences
-sequences = tokenizer.texts_to_sequences(text_data_arr)[0]
-
-# Prepare input and target sequences
-input_sequences = []
-output_sequences = []
-
-sequence_length = 130
-for i in range(len(sequences) - sequence_length):
-    input_sequences.append(sequences[i : i + sequence_length])
-    output_sequences.append(sequences[i + sequence_length])
-
-input_sequences = np.array(input_sequences)
-output_sequences = np.array(output_sequences)
-
-vocab_size = len(tokenizer.word_index) + 1
-
-# Define the model architecture:
-model = Sequential(
-    [
-        Embedding(vocab_size, 32, input_shape=(sequence_length,)),
-        LSTM(328, return_sequences=True, dropout=0.2, recurrent_dropout=0.2),
-        LSTM(328, dropout=0.2, recurrent_dropout=0.2),
-        Dense(vocab_size, activation="softmax"),
-    ]
-)
-
-model.compile(
-    loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"]
-)
-model.summary()
-
-# Add the CSVLogger callback to save training history
-csv_logger = tf.keras.callbacks.CSVLogger(
-    "training_history.csv"
-)  # Specify the file path
-
-# Train the model
-epochs = 100  # Increase the number of epochs to give the model more time to learn
+# Hyperparameters
+epochs = 100
 batch_size = 32
-model.fit(
-    input_sequences,
-    output_sequences,
-    epochs=epochs,
-    batch_size=batch_size,
-    callbacks=[csv_logger],
-)
+sequence_length = 130
+seed_text = "John: How are you, Mike?"
+
+
+def prep_data():
+    text_data_arr = load_dataset()
+
+    # Tokenize the text
+    tokenizer = Tokenizer(char_level=True, lower=True)
+    tokenizer.fit_on_texts(text_data_arr)
+
+    # Convert text to sequences
+    sequences = tokenizer.texts_to_sequences(text_data_arr)[0]
+
+    # Prepare input and target sequences
+    input_sequences = []
+    output_sequences = []
+
+    for i in range(len(sequences) - sequence_length):
+        input_sequences.append(sequences[i : i + sequence_length])
+        output_sequences.append(sequences[i + sequence_length])
+
+    input_sequences = np.array(input_sequences)
+    output_sequences = np.array(output_sequences)
+
+    vocab_size = len(tokenizer.word_index) + 1
+    return input_sequences, output_sequences, vocab_size, tokenizer
+
+
+def build_model(
+    vocab_size,
+):
+    # Define the model architecture:
+    model = Sequential(
+        [
+            Embedding(vocab_size, 32, input_shape=(sequence_length,)),
+            LSTM(328, return_sequences=True, dropout=0.2, recurrent_dropout=0.2),
+            LSTM(328, dropout=0.2, recurrent_dropout=0.2),
+            Dense(vocab_size, activation="softmax"),
+        ]
+    )
+
+    model.compile(
+        loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"]
+    )
+    model.summary()
+
+    return model
+
+
+def train_model(model, x, y):
+    # Add the CSVLogger callback to save training history
+    csv_logger = tf.keras.callbacks.CSVLogger("training_history.csv")
+
+    # Train the model
+    model.fit(
+        x,
+        y,
+        epochs=epochs,
+        batch_size=batch_size,
+        callbacks=[csv_logger],
+    )
 
 
 # Evaluate the model and generate text:
@@ -93,9 +105,13 @@ def generate_text(seed_text, model, tokenizer, sequence_length, num_chars_to_gen
     return generated_text
 
 
-seed_text = "John: How are you, Mike?"
+if __name__ == "__main__":
+    x, y, vocab_size, tokenizer = prep_data()
+    model = build_model(vocab_size)
+    train_model(model, x, y)
+    model.save("sl_model.keras")
 
-generated_text = generate_text(
-    seed_text, model, tokenizer, sequence_length, num_chars_to_generate=800
-)
-print(generated_text)
+    generated_text = generate_text(
+        seed_text, model, tokenizer, sequence_length, num_chars_to_generate=800
+    )
+    print(generated_text)
