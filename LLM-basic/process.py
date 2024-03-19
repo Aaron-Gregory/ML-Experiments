@@ -15,12 +15,19 @@ Dropout = tf.keras.layers.Dropout
 from data_arxiv import load_dataset
 
 # Hyperparameters
-epochs = 100
-batch_size = 32
 sequence_length = 130
-seed_text = "John: How are you, Mike?"
-test_set_size = 500
 val_set_size = 500
+test_set_size = 500
+
+model_hidden_layers = 1
+model_hidden_layer_size = 128
+
+training_epochs = 100
+training_batch_size = 32
+
+dropout_fraction = 0.2
+
+sample_seed_text = "We must never forget that"
 
 
 def prep_data():
@@ -51,34 +58,49 @@ def prep_data():
 def build_model(
     vocab_size,
 ):
-    # Define the model architecture:
-    model = Sequential(
-        [
-            Embedding(vocab_size, 32, input_shape=(sequence_length,)),
-            LSTM(328, return_sequences=True, dropout=0.2, recurrent_dropout=0.2),
-            LSTM(328, dropout=0.2, recurrent_dropout=0.2),
-            Dense(vocab_size, activation="softmax"),
-        ]
+    # Define the model architecture
+    layers = []
+    layers.append(Embedding(vocab_size, 32, input_shape=(sequence_length,)))
+    for _ in range(model_hidden_layers - 1):
+        layers.append(
+            LSTM(
+                model_hidden_layer_size,
+                return_sequences=True,
+                dropout=dropout_fraction,
+                recurrent_dropout=dropout_fraction,
+            )
+        )
+    layers.append(
+        LSTM(
+            model_hidden_layer_size,
+            dropout=dropout_fraction,
+            recurrent_dropout=dropout_fraction,
+        )
     )
+    layers.append(Dense(vocab_size, activation="softmax"))
 
+    model = Sequential(layers)
     model.compile(
         loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"]
     )
     model.summary()
 
+    print("total_params:", model.count_params())
+
     return model
 
 
-def train_model(model, x, y):
+def train_model(model, x_train, y_train, x_val, y_val):
     # Add the CSVLogger callback to save training history
     csv_logger = tf.keras.callbacks.CSVLogger("training_history.csv")
 
     # Train the model
     model.fit(
-        x,
-        y,
-        epochs=epochs,
-        batch_size=batch_size,
+        x_train,
+        y_train,
+        epochs=training_epochs,
+        batch_size=training_batch_size,
+        validation_data=(x_val, y_val),
         callbacks=[csv_logger],
     )
 
@@ -108,22 +130,41 @@ def generate_text(seed_text, model, tokenizer, sequence_length, num_chars_to_gen
 
 
 if __name__ == "__main__":
+    # Prepping data
     x, y, vocab_size, tokenizer = prep_data()
-    s1, s2 = -(test_set_size + val_set_size), -val_set_size
+    s1, s2 = -(val_set_size + test_set_size), -test_set_size
     x_train, x_test, x_val = x[:s1], x[s1:s2], x[s2:]
     y_train, y_test, y_val = y[:s1], y[s1:s2], y[s2:]
+
     print("dataset_size:", x.shape[0])
     print("training_set_size:", x_train.shape[0])
+    print("vocab_size: ", vocab_size)
+    print()
     print("X (train, test, val):", x_train.shape, x_test.shape, x_val.shape)
     print("y (train, test, val):", y_train.shape, y_test.shape, y_val.shape)
-    print("Vocab size: ", vocab_size)
-    # model = build_model(vocab_size)
-    # train_model(model, x, y)
-    # model.save("sl_model.keras")
 
-    # generated_text = generate_text(
-    #     seed_text, model, tokenizer, sequence_length, num_chars_to_generate=800
-    # )
-    # print(generated_text)
-    # with open("sample_output.txt", "w") as f:
-    #     f.write(generated_text)
+    # building and training model
+    model = build_model(vocab_size)
+    train_model(model, x_train, y_train, x_val, y_val)
+    model.save("sl_model.keras")
+
+    # evaluating results
+    train_loss, train_accuracy = model.evaluate(x_train, y_train)
+    print("train_loss:", train_loss)
+    print("train_accuracy:", train_accuracy)
+
+    val_loss, val_accuracy = model.evaluate(x_val, y_val)
+    print("val_loss:", val_loss)
+    print("val_accuracy:", val_accuracy)
+
+    test_loss, test_accuracy = model.evaluate(x_test, y_test)
+    print("test_loss:", test_loss)
+    print("test_accuracy:", test_accuracy)
+
+    # generating sample text
+    generated_text = generate_text(
+        sample_seed_text, model, tokenizer, sequence_length, num_chars_to_generate=800
+    )
+    print(generated_text)
+    with open("sample_output.txt", "w") as f:
+        f.write(generated_text)
