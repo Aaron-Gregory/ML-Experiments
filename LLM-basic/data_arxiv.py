@@ -10,7 +10,11 @@ WORKSPACE_DIR = "./LLM-basic/arxiv/"
 # a bit of jank to get around GuildAI trying to copy all our training data for every run
 DATASET_DIR = "/home/green/Coding/ML-Experiments/LLM-basic/dataset/"
 QUERY_SIZE = 100
-STARTING_POINT = 1663
+# TOPICS:
+# electron up to 1662
+# economics up to 957
+TOPIC = "economics"
+STARTING_POINT = 958
 
 
 # Function to download and extract a .tar.gz file
@@ -113,11 +117,13 @@ def load_dataset():
 
 if __name__ == "__main__":
     for i in range(100):
-        # TOPICS:
-        # electron up to 1662
-        # economics up to 0
-        search_url = f"http://export.arxiv.org/api/query?search_query=all:electron&start={i * QUERY_SIZE + STARTING_POINT}&max_results={QUERY_SIZE}"
+        search_url = f"http://export.arxiv.org/api/query?search_query=all:{TOPIC}&start={i * QUERY_SIZE + STARTING_POINT}&max_results={QUERY_SIZE}"
         src_urls = get_src_urls(search_url)
+
+        if len(src_urls) == 0:
+            print("Got no results, terminating")
+            break
+
         print("Sleeping for 4 seconds...")
         time.sleep(4)  # To stay within rate limits
 

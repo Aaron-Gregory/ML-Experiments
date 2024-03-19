@@ -1,5 +1,6 @@
 # process.py
 
+import time
 import numpy as np
 import tensorflow as tf
 
@@ -15,17 +16,17 @@ Dropout = tf.keras.layers.Dropout
 from data_arxiv import load_dataset
 
 # Hyperparameters
-sequence_length = 130
-val_set_size = 500
-test_set_size = 500
+sequence_length = 100
+val_set_size = 1000
+test_set_size = 1000
 
-model_hidden_layers = 1
+model_hidden_layers = 2
 model_hidden_layer_size = 128
 
 training_epochs = 100
 training_batch_size = 32
 
-dropout_fraction = 0.2
+dropout_fraction = 0.01
 
 sample_seed_text = "We must never forget that"
 
@@ -145,7 +146,12 @@ if __name__ == "__main__":
 
     # building and training model
     model = build_model(vocab_size)
+
+    t0 = time.time()
     train_model(model, x_train, y_train, x_val, y_val)
+    training_time = time.time() - t0
+    print("training_time:", training_time)
+
     model.save("sl_model.keras")
 
     # evaluating results
