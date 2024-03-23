@@ -11,10 +11,10 @@ WORKSPACE_DIR = "./LLM-basic/arxiv/"
 DATASET_DIR = "/home/green/Coding/ML-Experiments/LLM-basic/dataset/"
 QUERY_SIZE = 100
 # TOPICS:
-# electron up to 1662
-# economics up to 957
+# electron up to 3335
+# economics up to 2948
 TOPIC = "economics"
-STARTING_POINT = 958
+STARTING_POINT = 2948 + 1
 
 
 # Function to download and extract a .tar.gz file
