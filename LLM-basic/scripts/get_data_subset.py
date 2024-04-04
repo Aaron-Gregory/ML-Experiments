@@ -1,5 +1,5 @@
 """
-This script is for getting the data on which I'll evaluate a human benchmark. Output goes into two files containing xs and ys.
+This script is for getting the data on which a human benchmark can be evaluated. Output goes into two files containing xs and ys.
 """
 
 import numpy as np
