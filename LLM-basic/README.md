@@ -13,7 +13,7 @@ source LLM_env/bin/activate
 pip install -r requirements.txt
 ```
 
-3. **Data Collection**: Run `data_collection.py` to collect data from the ArXiv API. Ensure you have API access and configure the script accordingly. You may need to run this script multiple times with different topics in order to get a variety of training data.
+3. **Data Collection**: Run `data_collection.py` to collect data from the open ArXiv API. You may need to run this script multiple times with different topics in order to get a variety of training data.
 
 4. **Explore Data**: Execute `explore_data.py` to get insights into the collected dataset. This will help you understand its size and characteristics.
 
