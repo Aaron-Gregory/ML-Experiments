@@ -6,9 +6,10 @@ import re
 import tarfile
 import os
 
+from tqdm import tqdm
+from constants import RAW_DATASET_DIR
+
 WORKSPACE_DIR = "./LLM-basic/arxiv/"
-# a bit of jank to get around GuildAI trying to copy all our training data for every run
-DATASET_DIR = "/home/green/Coding/ML-Experiments/LLM-basic/dataset/"
 QUERY_SIZE = 100
 # TOPICS:
 # electron up to 3335
@@ -68,7 +69,7 @@ def get_src_urls(search_url):
 
 
 def get_next_dataset_name():
-    next_num = len(os.listdir(DATASET_DIR))
+    next_num = len(os.listdir(RAW_DATASET_DIR))
     return f"{next_num:08d}.tex"
 
 
@@ -87,15 +88,15 @@ def add_to_dataset(gzip_url):
     for tex_file in tex_files:
         name = get_next_dataset_name()
         print(name, "<--", tex_file)
-        os.rename(tex_file, DATASET_DIR + name)
+        os.rename(tex_file, RAW_DATASET_DIR + name)
 
     shutil.rmtree(WORKSPACE_DIR)
 
 
 def load_dataset():
     dataset = []
-    for root, dirs, files in os.walk(DATASET_DIR):
-        for file in files:
+    for root, _, files in os.walk(RAW_DATASET_DIR):
+        for file in tqdm(files, desc="Reading in dataset", unit="files"):
             if file.endswith(".tex"):
                 file_path = os.path.join(root, file)
                 # Try multiple encodings

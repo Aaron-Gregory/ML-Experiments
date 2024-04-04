@@ -3,6 +3,7 @@
 import time
 import numpy as np
 import tensorflow as tf
+from tqdm import tqdm
 
 Tokenizer = tf.keras.preprocessing.text.Tokenizer
 pad_sequences = tf.keras.preprocessing.sequence.pad_sequences
@@ -39,15 +40,16 @@ def prep_data():
     tokenizer.fit_on_texts(text_data_arr)
 
     # Convert text to sequences
-    sequences = tokenizer.texts_to_sequences(text_data_arr)[0]
+    sequences = tokenizer.texts_to_sequences(text_data_arr)
 
     # Prepare input and target sequences
     input_sequences = []
     output_sequences = []
 
-    for i in range(len(sequences) - sequence_length):
-        input_sequences.append(sequences[i : i + sequence_length])
-        output_sequences.append(sequences[i + sequence_length])
+    for sequence in tqdm(sequences):
+        for i in range(len(sequence) - sequence_length):
+            input_sequences.append(sequence[i : i + sequence_length])
+            output_sequences.append(sequence[i + sequence_length])
 
     input_sequences = np.array(input_sequences)
     output_sequences = np.array(output_sequences)
