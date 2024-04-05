@@ -2,14 +2,20 @@
 
 ## LLM-basic
 
-This is a project to get a first intoduction to LLMs. The goal is to produce a very small foundation model on an academic dataset, with a character-based tokenizer.
+**Overview:**
+This project serves as an initial exploration into Language Model (LLM) development. The objective is to build a foundational model using a character-based tokenizer on an academic dataset.
 
-First version was based on code from here: https://f-a.nz/dev/develop-your-own-llm-like-chatgpt-with-tensorflow-and-keras/
+**References:**
+The initial version of this project was inspired by code available [here](https://f-a.nz/dev/develop-your-own-llm-like-chatgpt-with-tensorflow-and-keras/).
 
-Data was collected from Arxiv - 11k unprocessed TeX files, giving token 100k sequences in the dataset.
+**Data Collection:**
+Data was gathered from ArXiv, consisting of 11k unprocessed TeX files. This yielded 100k token sequences in the dataset. Access the dataset [here](https://drive.google.com/file/d/1RxVmHi96jF1UpUdG7HCsX6ML7B45QLKS/view?usp=sharing).
 
-A human baseline was evaluated across 500 sequences randomly selected from the dataset - results: 36.2% error.
+**Baseline Evaluation:**
+A human baseline was established by evaluating 500 randomly selected sequences from the dataset, resulting in a 36.2% error rate.
 
-Best accuracy acheived with LSTMs: 40% error.
+**Best Accuracy:**
+The best accuracy achieved using Long Short-Term Memory (LSTM) models resulted in a 40% error rate.
 
-Training are collected in this spreadsheet: https://docs.google.com/spreadsheets/d/16Sg6wZPAjUad_ylNDI5h8d42TLUCnJUidK5uwUizjPA/edit?usp=sharing
+**Training Results:**
+Training results are documented in [this spreadsheet](https://docs.google.com/spreadsheets/d/16Sg6wZPAjUad_ylNDI5h8d42TLUCnJUidK5uwUizjPA/edit?usp=sharing).

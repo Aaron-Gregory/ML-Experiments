@@ -13,7 +13,6 @@ from src.sequences import (
 
 NUM_EXAMPLES = 500
 
-
 if __name__ == "__main__":
     x, y = get_training_data(sequence_length)
     tokenizer = load_tokenizer()
