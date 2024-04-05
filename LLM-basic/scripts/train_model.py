@@ -1,5 +1,3 @@
-# process.py
-
 import time
 import numpy as np
 import tensorflow as tf
@@ -14,7 +12,7 @@ Dense = tf.keras.layers.Dense
 LSTM = tf.keras.layers.LSTM
 Dropout = tf.keras.layers.Dropout
 
-from data_arxiv import load_dataset
+from data_collection import load_dataset
 
 # Hyperparameters
 sequence_length = 100

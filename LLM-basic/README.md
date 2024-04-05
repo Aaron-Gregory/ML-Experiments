@@ -19,7 +19,7 @@ pip install -r requirements.txt
 
 5. **Process Dataset**: Run `process_dataset.py` to preprocess the dataset. This script will tokenize the `.tex` files in `dataset_raw` and save the tokenized results and tokenizer under `dataset_processed` for later use in training the Language Model.
 
-6. **Train the Language Model**: With the dataset processed, you can now proceed to train your Language Model using the tokenized data.
+6. **Train the Language Model**: With the dataset processed, you can now proceed to train your Language Model using the tokenized data, with `guild run train`.
 
 ## Scripts
 
