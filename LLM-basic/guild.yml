@@ -1,0 +1,5 @@
+train:
+  description: Load the training data, fit the tokenizer, train the network
+  main: scripts/train_model
+  flags-import: all
+  output-scalars: '(\key): (\value)'
