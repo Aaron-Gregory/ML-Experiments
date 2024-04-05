@@ -9,7 +9,7 @@ NUM_EXAMPLES = 500
 
 
 def token_to_str(token, tokenizer):
-    output_word = "UNKNOWN"
+    output_word = "<UNKNOWN>"
     for word, index in tokenizer.word_index.items():
         if index == token:
             output_word = word

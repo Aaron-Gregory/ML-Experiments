@@ -6,12 +6,15 @@ stores the resultant vocabulary and token strings under dataset_processed.
 import re
 import tensorflow as tf
 from tqdm import tqdm
-import json
 
 Tokenizer = tf.keras.preprocessing.text.Tokenizer
 
-from src.sequences import load_raw_text_sequences
-from src.constants import VALID_CHARACTERS, TOKENIZER_JSON_PATH, TOKENIZED_DATASET_PATH
+from src.sequences import (
+    load_raw_text_sequences,
+    save_processed_token_sequences,
+    save_tokenizer,
+)
+from src.constants import VALID_CHARACTERS
 
 
 def process_raw_sequence(sequence, filter_characters=False, print_stats=True):
@@ -48,6 +51,7 @@ if __name__ == "__main__":
     raw_length = 0
     processed_length = 0
 
+    # process all the raw text sequences
     for text in tqdm(raw_text_arr, desc="Preprocessing dataset", unit="files"):
         process_text_arr.append(process_raw_sequence(text, print_stats=False))
         raw_length += len(text)
@@ -57,16 +61,13 @@ if __name__ == "__main__":
         f"Text reduction due to processing: {(1 - (processed_length / raw_length)) * 100:.01f}%"
     )
 
-    # Tokenize the text
+    # tokenize the processed text
     tokenizer = Tokenizer(char_level=True, lower=True)
     print("\nFitting tokenizer to texts (this may a while)...")
     tokenizer.fit_on_texts(process_text_arr)
 
     print("Saving...")
-    # Save tokenizer in a way that allows for it to be reconstructed
-    with open(TOKENIZER_JSON_PATH, "w") as f:
-        json.dump(tokenizer.to_json(), f)
-
+    save_tokenizer(tokenizer)
     print("Done")
 
     # tokenize processed dataset and save as a single file
@@ -74,7 +75,5 @@ if __name__ == "__main__":
     sequences = tokenizer.texts_to_sequences(process_text_arr)
 
     print("Saving...")
-    with open(TOKENIZED_DATASET_PATH, "w") as f:
-        json.dump({"sequences": sequences}, f)
-
+    save_processed_token_sequences(sequences)
     print("Done")

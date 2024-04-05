@@ -1,9 +1,7 @@
 import time
 import numpy as np
 import tensorflow as tf
-from tqdm import tqdm
 
-tokenizer_from_json = tf.keras.preprocessing.text.tokenizer_from_json
 pad_sequences = tf.keras.preprocessing.sequence.pad_sequences
 Sequential = tf.keras.models.Sequential
 Embedding = tf.keras.layers.Embedding
@@ -12,7 +10,7 @@ Dense = tf.keras.layers.Dense
 LSTM = tf.keras.layers.LSTM
 Dropout = tf.keras.layers.Dropout
 
-from data_collection import load_dataset
+from src.sequences import get_training_data, get_vocab_size, load_tokenizer
 
 # Hyperparameters
 sequence_length = 100
@@ -30,35 +28,7 @@ dropout_fraction = 0.01
 sample_seed_text = "We must never forget that"
 
 
-def prep_data():
-    text_data_arr = load_dataset()
-
-    # Tokenize the text
-    tokenizer = Tokenizer(char_level=True, lower=True)
-    tokenizer.fit_on_texts(text_data_arr)
-
-    # Convert text to sequences
-    sequences = tokenizer.texts_to_sequences(text_data_arr)
-
-    # Prepare input and target sequences
-    input_sequences = []
-    output_sequences = []
-
-    for sequence in tqdm(sequences):
-        for i in range(len(sequence) - sequence_length):
-            input_sequences.append(sequence[i : i + sequence_length])
-            output_sequences.append(sequence[i + sequence_length])
-
-    input_sequences = np.array(input_sequences)
-    output_sequences = np.array(output_sequences)
-
-    vocab_size = len(tokenizer.word_index) + 1
-    return input_sequences, output_sequences, vocab_size, tokenizer
-
-
-def build_model(
-    vocab_size,
-):
+def build_model(vocab_size):
     # Define the model architecture
     layers = []
     layers.append(Embedding(vocab_size, 32, input_shape=(sequence_length,)))
@@ -131,17 +101,15 @@ def generate_text(seed_text, model, tokenizer, sequence_length, num_chars_to_gen
 
 
 if __name__ == "__main__":
-
-    with open("file.json", "r") as json_file:
-        json_string = json_file.read()
-
-    tokenizer = tokenizer_from_json(json_string)
-
     # Prepping data
-    x, y, vocab_size, tokenizer = prep_data()
+    x, y = get_training_data(sequence_length)
     s1, s2 = -(val_set_size + test_set_size), -test_set_size
     x_train, x_test, x_val = x[:s1], x[s1:s2], x[s2:]
     y_train, y_test, y_val = y[:s1], y[s1:s2], y[s2:]
+
+    # and tokenizer
+    tokenizer = load_tokenizer()
+    vocab_size = get_vocab_size(tokenizer)
 
     print("dataset_size:", x.shape[0])
     print("training_set_size:", x_train.shape[0])

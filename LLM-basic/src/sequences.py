@@ -2,10 +2,16 @@
 Contains code relating to sequence loading, processing, and tokenization.
 """
 
+import json
 import os
 
+import numpy as np
+import tensorflow as tf
 from tqdm import tqdm
-from src.constants import RAW_DATASET_DIR
+
+tokenizer_from_json = tf.keras.preprocessing.text.tokenizer_from_json
+
+from src.constants import RAW_DATASET_DIR, TOKENIZED_DATASET_PATH, TOKENIZER_JSON_PATH
 
 
 def load_raw_text_sequences():
@@ -29,3 +35,52 @@ def load_raw_text_sequences():
                 else:
                     print(f"Unable to read file: {file_path}")
     return dataset
+
+
+def save_processed_token_sequences(token_sequences):
+    with open(TOKENIZED_DATASET_PATH, "w") as json_file:
+        json.dump({"sequences": token_sequences}, json_file)
+
+
+def load_processed_token_sequences():
+    with open(TOKENIZED_DATASET_PATH, "r") as json_file:
+        json_dict = json.load(json_file)
+
+    return json_dict["sequences"]
+
+
+def get_training_data(sequence_length):
+    sequences = load_processed_token_sequences()
+
+    # Prepare input and target sequences
+    input_sequences = []
+    output_sequences = []
+
+    for sequence in tqdm(sequences):
+        for i in range(len(sequence) - sequence_length):
+            input_sequences.append(sequence[i : i + sequence_length])
+            output_sequences.append(sequence[i + sequence_length])
+
+    input_sequences = np.array(input_sequences)
+    output_sequences = np.array(output_sequences)
+
+    return input_sequences, output_sequences
+
+
+def save_tokenizer(tokenizer):
+    with open(TOKENIZER_JSON_PATH, "w") as json_file:
+        json.dump(tokenizer.to_json(), json_file)
+
+
+def load_tokenizer():
+    with open(TOKENIZER_JSON_PATH, "r") as json_file:
+        json_string = json_file.read()
+
+    return tokenizer_from_json(json_string)
+
+
+def get_vocab_size(tokenizer):
+    """
+    Assumes one padding token not found in the training sequences.
+    """
+    return len(tokenizer.word_index) + 1
