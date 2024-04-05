@@ -6,8 +6,7 @@ import re
 import tarfile
 import os
 
-from tqdm import tqdm
-from constants import RAW_DATASET_DIR
+from src.constants import RAW_DATASET_DIR
 
 WORKSPACE_DIR = "./LLM-basic/arxiv/"
 QUERY_SIZE = 100
@@ -68,7 +67,7 @@ def get_src_urls(search_url):
     return hrefs
 
 
-def get_next_dataset_name():
+def get_next_dataset_file_name():
     next_num = len(os.listdir(RAW_DATASET_DIR))
     return f"{next_num:08d}.tex"
 
@@ -86,34 +85,11 @@ def add_to_dataset(gzip_url):
     # Print the paths of all .tex files found
     print("Found .tex files:")
     for tex_file in tex_files:
-        name = get_next_dataset_name()
+        name = get_next_dataset_file_name()
         print(name, "<--", tex_file)
         os.rename(tex_file, RAW_DATASET_DIR + name)
 
     shutil.rmtree(WORKSPACE_DIR)
-
-
-def load_dataset():
-    dataset = []
-    for root, _, files in os.walk(RAW_DATASET_DIR):
-        for file in tqdm(files, desc="Reading in dataset", unit="files"):
-            if file.endswith(".tex"):
-                file_path = os.path.join(root, file)
-                # Try multiple encodings
-                encodings = ["utf-8", "latin-1"]  # You can extend this list as needed
-                content = None
-                for encoding in encodings:
-                    try:
-                        with open(file_path, "r", encoding=encoding) as f:
-                            content = f.read()
-                        break  # Break out of the loop if file is successfully read
-                    except UnicodeDecodeError:
-                        pass  # Try the next encoding
-                if content is not None:
-                    dataset.append(content)
-                else:
-                    print(f"Unable to read file: {file_path}")
-    return dataset
 
 
 if __name__ == "__main__":

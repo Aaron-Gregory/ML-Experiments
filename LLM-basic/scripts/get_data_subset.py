@@ -3,7 +3,7 @@ This script is for getting the data on which a human benchmark can be evaluated.
 """
 
 import numpy as np
-from process import prep_data
+from process_dataset import prep_data
 
 NUM_EXAMPLES = 500
 

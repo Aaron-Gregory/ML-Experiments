@@ -10,23 +10,23 @@ import json
 
 Tokenizer = tf.keras.preprocessing.text.Tokenizer
 
-from data_arxiv import load_dataset
-from constants import VALID_CHARACTERS, TOKENIZER_JSON_PATH, TOKENIZED_DATASET_PATH
+from src.sequences import load_raw_text_sequences
+from src.constants import VALID_CHARACTERS, TOKENIZER_JSON_PATH, TOKENIZED_DATASET_PATH
 
 
-def process_file(contents, filter_characters=False, print_stats=True):
-    len_original = len(contents)
+def process_raw_sequence(sequence, filter_characters=False, print_stats=True):
+    len_original = len(sequence)
 
     # convert all whitespace sequences to single characters
-    contents = re.sub(r"\s+", " ", contents)
+    sequence = re.sub(r"\s+", " ", sequence)
 
-    len_post_whitespace = len(contents)
+    len_post_whitespace = len(sequence)
 
     # filter out unallowed characters
     if filter_characters:
-        contents = "".join(filter(lambda x: x in VALID_CHARACTERS, contents))
+        sequence = "".join(filter(lambda x: x in VALID_CHARACTERS, sequence))
 
-    len_post_filter = len(contents)
+    len_post_filter = len(sequence)
 
     reduction_after_whitespace = 1 - (len_post_whitespace / len_original)
     reduction_after_characters = 1 - (len_post_filter / len_original)
@@ -38,18 +38,18 @@ def process_file(contents, filter_characters=False, print_stats=True):
                 f"Reduction after character filter: {reduction_after_characters * 100:5.01f}%"
             )
 
-    return contents
+    return sequence
 
 
 if __name__ == "__main__":
-    text_data_arr = load_dataset()
+    raw_text_arr = load_raw_text_sequences()
     process_text_arr = []
 
     raw_length = 0
     processed_length = 0
 
-    for text in tqdm(text_data_arr, desc="Preprocessing dataset", unit="files"):
-        process_text_arr.append(process_file(text, print_stats=False))
+    for text in tqdm(raw_text_arr, desc="Preprocessing dataset", unit="files"):
+        process_text_arr.append(process_raw_sequence(text, print_stats=False))
         raw_length += len(text)
         processed_length += len(process_text_arr[-1])
 

@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
 
-Tokenizer = tf.keras.preprocessing.text.Tokenizer
+tokenizer_from_json = tf.keras.preprocessing.text.tokenizer_from_json
 pad_sequences = tf.keras.preprocessing.sequence.pad_sequences
 Sequential = tf.keras.models.Sequential
 Embedding = tf.keras.layers.Embedding
@@ -131,6 +131,12 @@ def generate_text(seed_text, model, tokenizer, sequence_length, num_chars_to_gen
 
 
 if __name__ == "__main__":
+
+    with open("file.json", "r") as json_file:
+        json_string = json_file.read()
+
+    tokenizer = tokenizer_from_json(json_string)
+
     # Prepping data
     x, y, vocab_size, tokenizer = prep_data()
     s1, s2 = -(val_set_size + test_set_size), -test_set_size
