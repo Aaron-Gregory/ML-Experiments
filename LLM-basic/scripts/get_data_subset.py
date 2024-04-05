@@ -3,36 +3,25 @@ This script is for getting the data on which a human benchmark can be evaluated.
 """
 
 import numpy as np
-from process_dataset import prep_data
+from train_model import sequence_length
+from src.sequences import (
+    get_training_data,
+    load_tokenizer,
+    token_sequence_to_str,
+    token_to_str,
+)
 
 NUM_EXAMPLES = 500
 
 
-def token_to_str(token, tokenizer):
-    output_word = "<UNKNOWN>"
-    for word, index in tokenizer.word_index.items():
-        if index == token:
-            output_word = word
-            break
-
-    return output_word
-
-
-def input_to_str(input_tokens, tokenizer):
-    result = ""
-    for token in input_tokens:
-        result += token_to_str(token, tokenizer)
-
-    return result
-
-
 if __name__ == "__main__":
-    x, y, vocab_size, tokenizer = prep_data()
+    x, y = get_training_data(sequence_length)
+    tokenizer = load_tokenizer()
     print(x.shape)
     xs, ys = [], []
     for _ in range(NUM_EXAMPLES):
         index = np.random.randint(0, x.shape[0])
-        xs.append(input_to_str(x[index], tokenizer).replace("\n", "\\n"))
+        xs.append(token_sequence_to_str(x[index], tokenizer).replace("\n", "\\n"))
         ys.append(token_to_str(y[index], tokenizer).replace("\n", "\\n"))
 
     with open("out_x.txt", "w") as f:

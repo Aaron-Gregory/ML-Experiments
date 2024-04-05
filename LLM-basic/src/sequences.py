@@ -74,9 +74,9 @@ def save_tokenizer(tokenizer):
 
 def load_tokenizer():
     with open(TOKENIZER_JSON_PATH, "r") as json_file:
-        json_string = json_file.read()
+        json_dict = json.load(json_file)
 
-    return tokenizer_from_json(json_string)
+    return tokenizer_from_json(json_dict)
 
 
 def get_vocab_size(tokenizer):
@@ -84,3 +84,21 @@ def get_vocab_size(tokenizer):
     Assumes one padding token not found in the training sequences.
     """
     return len(tokenizer.word_index) + 1
+
+
+def token_to_str(token, tokenizer):
+    output_word = "<UNKNOWN>"
+    for word, index in tokenizer.word_index.items():
+        if index == token:
+            output_word = word
+            break
+
+    return output_word
+
+
+def token_sequence_to_str(input_tokens, tokenizer):
+    result = ""
+    for token in input_tokens:
+        result += token_to_str(token, tokenizer)
+
+    return result
